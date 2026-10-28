@@ -197,7 +197,7 @@ abstract class AnimeUnity :
                 }
             }
 
-        AnimesPage(animeList, data.tot - page * 30 >= 30 && data.tot > 30)
+        AnimesPage(animeList, data.tot > page * 30)
     } else {
         popularAnimeParse(response)
     }
