@@ -17,7 +17,7 @@ import keiyoushi.annotation.Source
 import keiyoushi.utils.AnimeHttpLegacySource
 import keiyoushi.utils.getPreferencesLazy
 import keiyoushi.utils.parseAs
-import keiyoushi.utils.toJsonRequestBody
+import keiyoushi.utils.toJsonBody
 import kotlinx.serialization.json.Json
 import okhttp3.Headers
 import okhttp3.HttpUrl
@@ -31,9 +31,6 @@ import java.text.SimpleDateFormat
 abstract class AnimeUnity :
     AnimeHttpLegacySource(),
     ConfigurableAnimeSource {
-
-    // TODO: Check frequency of url changes to potentially
-    // add back overridable baseurl preference
 
     override val supportsLatest = true
 
@@ -176,7 +173,7 @@ abstract class AnimeUnity :
                 "dubbed": ${if (filters.dub.isEmpty()) "false" else "true"},
                 "season": ${filters.season.falseIfEmpty()}
             }
-            """.trimIndent().toJsonRequestBody()
+            """.trimIndent().toJsonBody()
 
         return POST("$baseUrl/archivio/get-animes", body = body, headers = searchHeaders)
     }
