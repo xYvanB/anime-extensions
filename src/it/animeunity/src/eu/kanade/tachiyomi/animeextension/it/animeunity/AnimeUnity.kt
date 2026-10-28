@@ -165,7 +165,7 @@ abstract class AnimeUnity :
         val body =
             """
             {
-                "title": ${query.toJsonStringOrFalse()},
+                "title": ${query.falseIfEmpty()},
                 "type": ${filters.type.falseIfEmpty()},
                 "year": ${filters.year.falseIfEmpty()},
                 "order": ${filters.order.falseIfEmpty()},
@@ -442,12 +442,10 @@ abstract class AnimeUnity :
             }
     }
 
-    private fun String.toJsonStringOrFalse(): String = if (isEmpty()) "false" else JsonPrimitive(this).toString()
-
     private fun String.falseIfEmpty(): String = if (this.isEmpty()) {
         "false"
     } else {
-        "\"${this}\""
+        JsonPrimitive(this).toString()
     }
 
     @SuppressLint("SimpleDateFormat")
