@@ -19,6 +19,7 @@ import keiyoushi.utils.getPreferencesLazy
 import keiyoushi.utils.parseAs
 import keiyoushi.utils.toJsonBody
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonPrimitive
 import okhttp3.Headers
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
@@ -118,6 +119,7 @@ abstract class AnimeUnity :
                 ).execute()
 
         val document = archivioResponse.asJsoup()
+        val siteUrl = archivioResponse.request.url.resolve("/")!!.toString().removeSuffix("/")
 
         val crsfToken = document.select("meta[name=csrf-token]").attr("content")
         var newHeadersBuilder = headers.newBuilder()
@@ -147,15 +149,15 @@ abstract class AnimeUnity :
                 newHeadersBuilder
                     .add("X-CSRF-TOKEN", crsfToken)
                     .add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8")
-                    .add("Referer", "$baseUrl/${filters.top}")
-            return GET("$baseUrl/${filters.top}", headers = topHeaders.build())
+                    .add("Referer", "$siteUrl/${filters.top}")
+            return GET("$siteUrl/${filters.top}", headers = topHeaders.build())
         }
 
         val searchHeaders =
             newHeadersBuilder
                 .add("Accept", "application/json, text/plain, */*")
                 .add("Content-Type", "application/json;charset=utf-8")
-                .add("Origin", baseUrl)
+                .add("Origin", siteUrl)
                 .add("Referer", archivioResponse.request.url.toString())
                 .add("X-Requested-With", "XMLHttpRequest")
                 .build()
@@ -163,7 +165,7 @@ abstract class AnimeUnity :
         val body =
             """
             {
-                "title": ${query.falseIfEmpty()},
+                "title": ${query.toJsonStringOrFalse()},
                 "type": ${filters.type.falseIfEmpty()},
                 "year": ${filters.year.falseIfEmpty()},
                 "order": ${filters.order.falseIfEmpty()},
@@ -175,7 +177,7 @@ abstract class AnimeUnity :
             }
             """.trimIndent().toJsonBody()
 
-        return POST("$baseUrl/archivio/get-animes", body = body, headers = searchHeaders)
+        return POST("$siteUrl/archivio/get-animes", body = body, headers = searchHeaders)
     }
 
     override fun searchAnimeParse(response: Response): AnimesPage = throw UnsupportedOperationException()
@@ -439,6 +441,8 @@ abstract class AnimeUnity :
                 }
             }
     }
+
+    private fun String.toJsonStringOrFalse(): String = if (isEmpty()) "false" else JsonPrimitive(this).toString()
 
     private fun String.falseIfEmpty(): String = if (this.isEmpty()) {
         "false"
