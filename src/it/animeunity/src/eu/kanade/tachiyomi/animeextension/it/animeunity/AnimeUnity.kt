@@ -383,7 +383,7 @@ abstract class AnimeUnity :
                     Track(it.groupValues[2], it.groupValues[1])
                 }.toList()*/
 
-        Regex("""https?://vixcloud\.co/playlist/(.+)\?.*type=video&.*rendition=(\d+p?).*""").findAll(masterPl).forEach { match ->
+        Regex("""https?://[^/\s]+/playlist/(.+)\?.*type=video&.*rendition=(\d+p?).*""").findAll(masterPl).forEach { match ->
             var videoUrl = match.groupValues[0]
             val filename = match.groupValues[1]
             if (!filename.endsWith(".m3u8")) {
